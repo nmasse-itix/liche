@@ -13,7 +13,10 @@ It checks all `a` and `img` tags in specified files.
 ## Installation
 
 ```sh
-go get -u github.com/raviqqe/liche
+git clone https://github.com/nmasse-itix/liche -b new-options
+cd liche
+go build -o liche
+sudo cp liche /usr/local/bin/liche
 ```
 
 * requires [Go Modules]("https://github.com/golang/go/wiki/Modules#how-to-use-modules")
@@ -31,6 +34,7 @@ Options:
 	-c, --concurrency <num-requests>  Set max number of concurrent HTTP requests. [default: 512]
 	-d, --document-root <directory>  Set document root directory for absolute paths.
 	-r, --recursive  Search Markdown and HTML files recursively
+	-l, --local-only  Validate only local links (file:// and bare links)
 	-t, --timeout <timeout>  Set timeout for HTTP requests in seconds. Disabled by default.
 	-x, --exclude <regex>  Regex of links to exclude from checking.
 	-v, --verbose  Be verbose.
@@ -51,7 +55,7 @@ Options:
 - File extensions: `.md`, `.html`, `.htm`
 - HTML tags: `a`, `img`
 - HTML attributes: `href`, `src`
-- URL schemes: `http`, `https`
+- URL schemes: `http`, `https`, `file`
 
 Also supports relative and absolute paths.
 (Absolute paths need `--document-root` option.)
