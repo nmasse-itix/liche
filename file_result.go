@@ -26,7 +26,7 @@ func (r fileResult) String(verbose bool) string {
 	for _, r := range r.urlResults {
 		s := indent(r.String())
 
-		if r.err != nil {
+		if r.err != nil && r.err != errSkipped {
 			xs = append(xs, s)
 		} else if verbose {
 			os = append(os, s)
