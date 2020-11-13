@@ -41,8 +41,11 @@ func TestURLCheckerCheckLocal(t *testing.T) {
 		assert.Equal(t, errSkipped, c.Check(u, "README.md"))
 	}
 
-	for _, u := range []string{"README.md"} {
+	for _, u := range []string{"README.md", "file://README.md"} {
 		assert.Equal(t, nil, c.Check(u, "README.md"))
+	}
+	for _, u := range []string{"file://foo-bar-missing-file-azertyuiop"} {
+		assert.NotEqual(t, nil, c.Check(u, "README.md"))
 	}
 }
 

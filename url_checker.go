@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -93,13 +94,32 @@ func (c urlChecker) resolveURL(u string, f string) (string, bool, error) {
 		return u, false, nil
 	}
 
+	// The file URLs are a mess. According to the RFC, they should be like
+	// file://host/absolute/path/to/file or file:///absolute/path/to/file
+	//
+	// But in real life, the following form is accepted:
+	// file://relative/path/to/file
+	//
+	// To handle this special case, we have to parse the URL by ourself
+	p := uu.Path
+	if uu.Scheme == "file" {
+		if !strings.HasPrefix(u, "file://") {
+			return "", false, fmt.Errorf("wrong file URL syntax")
+		}
+
+		p, err = url.PathUnescape(u[7:])
+		if err != nil {
+			return "", false, err
+		}
+	}
+
 	if !path.IsAbs(uu.Path) {
-		return path.Join(filepath.Dir(f), uu.Path), true, nil
+		return path.Join(filepath.Dir(f), p), true, nil
 	}
 
 	if c.documentRoot == "" {
 		return "", false, fmt.Errorf("document root directory is not specified")
 	}
 
-	return path.Join(c.documentRoot, uu.Path), true, nil
+	return path.Join(c.documentRoot, p), true, nil
 }
