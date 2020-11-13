@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -19,10 +20,13 @@ type urlChecker struct {
 	documentRoot    string
 	excludedPattern *regexp.Regexp
 	semaphore       semaphore
+	localOnly       bool
 }
 
-func newURLChecker(t time.Duration, d string, r *regexp.Regexp, s semaphore) urlChecker {
-	return urlChecker{t, d, r, s}
+var errSkipped = errors.New("skipped as instructed")
+
+func newURLChecker(t time.Duration, d string, r *regexp.Regexp, s semaphore, l bool) urlChecker {
+	return urlChecker{t, d, r, s, l}
 }
 
 func (c urlChecker) Check(u string, f string) error {
@@ -38,6 +42,8 @@ func (c urlChecker) Check(u string, f string) error {
 	if local {
 		_, err := os.Stat(u)
 		return err
+	} else if c.localOnly {
+		return errSkipped
 	}
 
 	c.semaphore.Request()
@@ -83,7 +89,7 @@ func (c urlChecker) resolveURL(u string, f string) (string, bool, error) {
 		return "", false, err
 	}
 
-	if uu.Scheme != "" {
+	if uu.Scheme != "" && uu.Scheme != "file" {
 		return u, false, nil
 	}
 

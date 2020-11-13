@@ -14,12 +14,13 @@ const defaultConcurrency = maxOpenFiles / 2
 const usage = `Link checker for Markdown and HTML
 
 Usage:
-	liche [-c <num-requests>] [-d <directory>] [-r] [-t <timeout>] [-x <regex>] [-v] <filenames>...
+	liche [-c <num-requests>] [-d <directory>] [-r] [-l] [-t <timeout>] [-x <regex>] [-v] <filenames>...
 
 Options:
 	-c, --concurrency <num-requests>  Set max number of concurrent HTTP requests. [default: %v]
 	-d, --document-root <directory>  Set document root directory for absolute paths.
 	-r, --recursive  Search Markdown and HTML files recursively
+	-l, --local-only  Validate only local links (file:// and bare links)
 	-t, --timeout <timeout>  Set timeout for HTTP requests in seconds. Disabled by default.
 	-x, --exclude <regex>  Regex of links to exclude from checking.
 	-v, --verbose  Be verbose.`
@@ -32,6 +33,7 @@ type arguments struct {
 	excludedPattern *regexp.Regexp
 	recursive       bool
 	verbose         bool
+	localOnly       bool
 }
 
 func getArguments(argv []string) (arguments, error) {
@@ -79,5 +81,6 @@ func getArguments(argv []string) (arguments, error) {
 		r,
 		args["--recursive"].(bool),
 		args["--verbose"].(bool),
+		args["--local-only"].(bool),
 	}, nil
 }

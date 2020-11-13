@@ -18,8 +18,8 @@ type fileChecker struct {
 	semaphore  semaphore
 }
 
-func newFileChecker(timeout time.Duration, d string, r *regexp.Regexp, s semaphore) fileChecker {
-	return fileChecker{newURLChecker(timeout, d, r, s), s}
+func newFileChecker(timeout time.Duration, d string, r *regexp.Regexp, s semaphore, l bool) fileChecker {
+	return fileChecker{newURLChecker(timeout, d, r, s, l), s}
 }
 
 func (c fileChecker) Check(f string) ([]urlResult, error) {
@@ -132,5 +132,5 @@ func isURL(s string) bool {
 	}
 
 	u, err := url.Parse(s)
-	return err == nil && (u.Scheme == "" || u.Scheme == "http" || u.Scheme == "https")
+	return err == nil && (u.Scheme == "" || u.Scheme == "http" || u.Scheme == "https" || u.Scheme == "file")
 }

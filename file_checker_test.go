@@ -10,7 +10,7 @@ import (
 )
 
 func TestFileCheckerCheck(t *testing.T) {
-	c := newFileChecker(0, "", nil, newSemaphore(1024))
+	c := newFileChecker(0, "", nil, newSemaphore(1024), false)
 
 	for _, f := range []string{"README.md", "test/foo.md", "test/foo.html"} {
 		rs, err := c.Check(f)
@@ -47,8 +47,22 @@ func TestFileCheckerCheck(t *testing.T) {
 	}
 }
 
+func TestFileCheckerLocal(t *testing.T) {
+	c := newFileChecker(0, "", nil, newSemaphore(1024), true)
+
+	for _, f := range []string{"test/remote.md", "test/remote.html"} {
+		rs, err := c.Check(f)
+
+		assert.Equal(t, nil, err)
+
+		for _, r := range rs {
+			assert.Equal(t, errSkipped, r.err)
+		}
+	}
+}
+
 func TestFileCheckerCheckMany(t *testing.T) {
-	c := newFileChecker(0, "", nil, newSemaphore(maxOpenFiles))
+	c := newFileChecker(0, "", nil, newSemaphore(maxOpenFiles), false)
 
 	for _, fs := range [][]string{
 		{"README.md"},
@@ -77,7 +91,7 @@ func TestFileCheckerCheckMany(t *testing.T) {
 }
 
 func TestFileCheckerCheckManyWithInvalidFiles(t *testing.T) {
-	c := newFileChecker(0, "", nil, newSemaphore(maxOpenFiles))
+	c := newFileChecker(0, "", nil, newSemaphore(maxOpenFiles), false)
 
 	for _, fs := range [][]string{
 		{"test/absolute_path.md"},
@@ -107,7 +121,7 @@ func TestFileCheckerCheckManyWithInvalidFiles(t *testing.T) {
 }
 
 func TestFileCheckerExtractURLs(t *testing.T) {
-	c := newFileChecker(0, "", nil, newSemaphore(42))
+	c := newFileChecker(0, "", nil, newSemaphore(42), false)
 
 	for _, x := range []struct {
 		html    string
@@ -152,11 +166,11 @@ func TestURLParse(t *testing.T) {
 }
 
 func TestIsURL(t *testing.T) {
-	for _, s := range []string{"http://google.com", "https://google.com", "file-path"} {
+	for _, s := range []string{"http://google.com", "https://google.com", "file://file-path", "file-path"} {
 		assert.True(t, isURL(s))
 	}
 
-	for _, s := range []string{"ftp://foo.com", "file://file-path", "#foo"} {
+	for _, s := range []string{"ftp://foo.com", "#foo"} {
 		assert.False(t, isURL(s))
 	}
 }

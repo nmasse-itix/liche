@@ -16,6 +16,10 @@ func (r urlResult) String() string {
 		return color.GreenString("OK") + "\t" + r.url
 	}
 
+	if r.err == errSkipped {
+		return color.YellowString("SKIPPED") + "\t" + r.url
+	}
+
 	s := r.err.Error()
 
 	return color.RedString("ERROR") + "\t" + r.url + "\n\t" +

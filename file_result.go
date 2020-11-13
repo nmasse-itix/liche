@@ -45,7 +45,7 @@ func (r fileResult) Ok() bool {
 	}
 
 	for _, r := range r.urlResults {
-		if r.err != nil {
+		if r.err != nil && r.err != errSkipped {
 			return false
 		}
 	}
